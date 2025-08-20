@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="浪漫爱心表白页面，带有精美特效和自定义内容">
+    <meta name="theme-color" content="#ff69b4">
+    <title>爱的告白 | 为你跳动的心</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 配置中心 - CSS变量集中管理 */
+        :root {
+            /* 颜色配置 */
+            --color-primary: #ff69b4;
+            --color-secondary: #ff85b3;
+            --color-deep: #ff1493;
+            --color-light: #ffb6c1;
+            --color-dark: #333;
+            --color-text-light: #fff;
+            --color-bg-dark: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            --color-bg-light: linear-gradient(135deg, #f8edeb, #fadadd, #ffc2d1);
+            
+            /* 阴影配置 */
+            --shadow-pink: 0 4px 10px rgba(255, 105, 180, 0.3);
+            --shadow-hover: 0 6px 15px rgba(255, 105, 180, 0.4);
+            --shadow-white: 0 4px 15px rgba(255, 255, 255, 0.4);
+            
+            /* 过渡配置 */
+            --transition-default: all 0.3s ease;
+            
+            /* 尺寸配置 */
+            --size-control-btn: 50px;
+            --radius-default: 20px;
+            --radius-circle: 50%;
+        }
+
+        /* 基础样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            background: var(--color-bg-dark);
+            color: var(--color-text-light);
+            height: 100vh;
+            transition: var(--transition-default);
+        }
+
+        /* 浅色模式样式 */
+        body.light-mode {
+            background: var(--color-bg-light);
+            color: var(--color-dark);
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* 控制按钮样式 */
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-pink);
+        }
+
+        .controls__btn {
+            width: var(--size-control-btn);
+            height: var(--size-control-btn);
+            border-radius: var(--radius-circle);
+            background: rgba(255, 182, 193, 0.8);
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition-default);
+            box-shadow: var(--shadow-pink);
+            position: relative;
+            will-change: transform, background;
+        }
+
+        .controls__btn:hover {
+            background: rgba(255, 105, 180, 0.9);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .controls__btn--active {
+            background: rgba(255, 105, 180, 0.9);
+        }
+
+        /* 消息容器样式 - 改良版设计 */
+        .message-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 20;
+            max-width: 90%;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: var(--radius-default);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            will-change: transform, opacity;
+        }
+
+        .light-mode .message-container {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 105, 180, 0.2);
+            box-shadow: var(--shadow-white);
+        }
+
+        .message__title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--color-primary);
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.8), 0 0 30px rgba(255, 105, 180, 0.5);
+            margin-bottom: 20px;
+            animation: heartbeat 1.2s infinite;
+            transition: all 0.5s ease;
+        }
+
+        .message__subtitle {
+            font-size: 1.5rem;
+            color: var(--color-light);
+            margin-top: 15px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .light-mode .message__subtitle {
+            color: #8a5a61;
+        }
+
+        /* 画布样式 */
+        .canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            will-change: transform;
+        }
+
+        .canvas--particles {
+            z-index: 5;
+        }
+
+        /* 横屏提示 */
+        .rotate-tip {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 30, 0.95);
+            color: var(--color-light);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-size: 1.5rem;
+            z-index: 200;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .rotate-tip__icon {
+            font-size: 4rem;
+            margin-bottom: 30px;
+            animation: rotateAnimation 2s ease-in-out infinite;
+        }
+
+        /* 自定义弹窗 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            backdrop-filter: blur(10px);
+            transition: var(--transition-default);
+        }
+
+        .modal--active {
+            display: flex;
+        }
+
+        .modal__content {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border-radius: var(--radius-default);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+        }
+
+        .light-mode .modal__content {
+            background: linear-gradient(135deg, #fff0f3, #ffd6e0);
+        }
+
+        .modal--active .modal__content {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal__title {
+            font-size: 2rem;
+            color: var(--color-light);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .light-mode .modal__title {
+            color: var(--color-deep);
+        }
+
+        .modal__close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--color-light);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group__label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: var(--color-light);
+        }
+
+        .light-mode .form-group__label {
+            color: var(--color-deep);
+        }
+
+        .form-group__input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 182, 193, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-text-light);
+            font-size: 1rem;
+            transition: var(--transition-default);
+        }
+
+        .light-mode .form-group__input {
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--color-dark);
+        }
+
+        .form-group__input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.3);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition-default);
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: var(--color-deep);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* 音乐播放提示 */
+        .music-prompt {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--color-light);
+            padding: 15px 25px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 150;
+            box-shadow: var(--shadow-pink);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .music-prompt--visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .music-prompt__icon {
+            font-size: 1.5rem;
+            animation: musicPulse 1.5s infinite;
+        }
+
+        .music-prompt__text {
+            font-size: 1rem;
+        }
+
+        .music-prompt__button {
+            background: var(--color-primary);
+            border: none;
+            color: white;
+            border-radius: 20px;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition-default);
+        }
+
+        .music-prompt__button:hover {
+            background: var(--color-deep);
+        }
+
+        /* 特效选择器 */
+        .effects-selector {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: var(--radius-default);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-pink);
+            z-index: 100;
+        }
+
+        .effects-selector__title {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--color-light);
+        }
+
+        .effects-selector__list {
+            display: flex;
+            gap: 10px;
+        }
+
+        .effects-selector__btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-circle);
+            background: rgba(255, 182, 193, 0.5);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition-default);
+        }
+
+        .effects-selector__btn:hover,
+        .effects-selector__btn--active {
+            background: var(--color-primary);
+        }
+
+        /* 加载屏幕 */
+        .loader-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--color-bg-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loader-screen__heart {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            animation: heartbeat 1.2s infinite;
+        }
+
+        .loader-screen__heart:before,
+        .loader-screen__heart:after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 48px;
+            background: var(--color-primary);
+            border-radius: 50px 50px 0 0;
+        }
+
+        .loader-screen__heart:before {
+            left: 30px;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+
+        .loader-screen__heart:after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        /* 动画定义 */
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.1); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.1); }
+            70% { transform: scale(1); }
+        }
+
+        @keyframes rotateAnimation {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes musicPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .message__title {
+                font-size: 2.5rem;
+            }
+            
+            .message__subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .controls, .effects-selector {
+                top: 15px;
+                padding: 10px;
+            }
+            
+            .controls__btn, .effects-selector__btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .effects-selector {
+                left: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .message__title {
+                font-size: 2rem;
+            }
+            
+            .message__subtitle {
+                font-size: 1rem;
+            }
+
+            .controls {
+                right: 10px;
+                gap: 10px;
+            }
+
+            .effects-selector {
+                left: 10px;
+            }
+
+            .controls__btn, .effects-selector__btn {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        @media (max-height: 480px) and (orientation: landscape) {
+            .rotate-tip {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载屏幕 -->
+    <div class="loader-screen" id="loaderScreen">
+        <div class="loader-screen__heart"></div>
+    </div>
+
+    <div class="container">
+        <!-- 特效选择器 - 迭代版特效控制 -->
+        <div class="effects-selector">
+            <div class="effects-selector__title">选择特效</div>
+            <div class="effects-selector__list">
+                <button class="effects-selector__btn effects-selector__btn--active" data-effect="heart" title="爱心特效">
+                    <i class="fas fa-heart"></i>
+                </button>
+                <button class="effects-selector__btn" data-effect="particles" title="粒子特效">
+                    <i class="fas fa-star"></i>
+                </button>
+                <button class="effects-selector__btn" data-effect="bubbles" title="气泡特效">
+                    <i class="fas fa-circle"></i>
+                </button>
+                <button class="effects-selector__btn" data-effect="fireworks" title="烟花特效">
+                    <i class="fas fa-fire"></i>
+                </button>
+                <button class="effects-selector__btn" data-effect="rain" title="雨丝特效">
+                    <i class="fas fa-tint"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 控制按钮组 -->
+        <div class="controls">
+            <button class="controls__btn" id="musicToggle" title="音乐开关">
+                <i class="fas fa-music"></i>
+            </button>
+            <button class="controls__btn" id="bgToggle" title="切换背景">
+                <i class="fas fa-adjust"></i>
+            </button>
+            <button class="controls__btn" id="textEdit" title="编辑文字">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="controls__btn" id="shareBtn" title="分享">
+                <i class="fas fa-share-alt"></i>
+            </button>
+        </div>
+
+        <!-- 消息内容 - 改良版设计 -->
+        <div class="message-container">
+            <h1 class="message__title" id="mainTitle">我爱你</h1>
+            <p class="message__subtitle" id="subTitle">你愿意做我的另一半吗？</p>
+        </div>
+
+        <!-- 画布元素 -->
+        <canvas class="canvas" id="heartCanvas"></canvas>
+        <canvas class="canvas canvas--particles" id="particlesCanvas"></canvas>
+
+        <!-- 音乐播放提示 -->
+        <div class="music-prompt" id="musicPrompt">
+            <i class="fas fa-music music-prompt__icon"></i>
+            <span class="music-prompt__text">点击开启背景音乐</span>
+            <button class="music-prompt__button" id="startMusicBtn">开启</button>
+        </div>
+
+        <!-- 横屏提示 -->
+        <div class="rotate-tip">
+            <i class="fas fa-rotate-right rotate-tip__icon"></i>
+            <p>请旋转设备至竖屏以获得最佳体验</p>
+        </div>
+
+        <!-- 文字编辑弹窗 -->
+        <div class="modal" id="textModal">
+            <button class="modal__close" id="modalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal__content">
+                <h2 class="modal__title">编辑表白文字</h2>
+                <div class="form-group">
+                    <label class="form-group__label" for="titleInput">主标题</label>
+                    <input type="text" class="form-group__input" id="titleInput" placeholder="输入主标题">
+                </div>
+                <div class="form-group">
+                    <label class="form-group__label" for="subtitleInput">副标题</label>
+                    <textarea class="form-group__input" id="subtitleInput" rows="4" placeholder="输入表白内容"></textarea>
+                </div>
+                <button class="btn" id="saveTextBtn">保存</button>
+            </div>
+        </div>
+
+        <!-- 背景音乐元素 -->
+        <audio id="backgroundMusic" loop>
+            <source src="就是爱你.mp3" type="audio/mpeg">
+            您的浏览器不支持音频元素。
+        </audio>
+    </div>
+
+    <script>
+        // 等待DOM加载完成
+        document.addEventListener('DOMContentLoaded', () => {
+            // 应用主类 - 封装所有功能，减少全局变量
+            class LoveConfessionApp {
+                constructor() {
+                    // 初始化属性
+                    this.isLightMode = false;
+                    this.activeEffect = 'heart';
+                    this.isMusicPlaying = false;
+                    this.lastTime = 0;
+                    this.animationId = null;
+                    this.isMobile = window.innerWidth < 768;
+                    
+                    // 缓存DOM元素引用
+                    this.elements = this.cacheDOM();
+                    
+                    // 特效数据
+                    this.effectsData = {
+                        heart: { points: [], config: { size: 0.3, pulseSpeed: 0.002 } },
+                        particles: { items: [], config: { count: 80, speed: 2 } },
+                        bubbles: { items: [], config: { count: 50, speed: 1 } },
+                        fireworks: { items: [], config: { count: 5, explosionSize: 50 } },
+                        rain: { items: [], config: { count: 150, speed: 10 } }
+                    };
+                    
+                    // 绑定事件处理函数
+                    this.bindEvents();
+                    
+                    // 初始化应用
+                    this.init();
+                }
+                
+                // 缓存DOM元素
+                cacheDOM() {
+                    return {
+                        heartCanvas: document.getElementById('heartCanvas'),
+                        particlesCanvas: document.getElementById('particlesCanvas'),
+                        mainTitle: document.getElementById('mainTitle'),
+                        subTitle: document.getElementById('subTitle'),
+                        bgToggle: document.getElementById('bgToggle'),
+                        textEdit: document.getElementById('textEdit'),
+                        textModal: document.getElementById('textModal'),
+                        modalClose: document.getElementById('modalClose'),
+                        titleInput: document.getElementById('titleInput'),
+                        subtitleInput: document.getElementById('subtitleInput'),
+                        saveTextBtn: document.getElementById('saveTextBtn'),
+                        effectButtons: document.querySelectorAll('.effects-selector__btn'),
+                        musicToggle: document.getElementById('musicToggle'),
+                        backgroundMusic: document.getElementById('backgroundMusic'),
+                        musicPrompt: document.getElementById('musicPrompt'),
+                        startMusicBtn: document.getElementById('startMusicBtn'),
+                        shareBtn: document.getElementById('shareBtn'),
+                        loaderScreen: document.getElementById('loaderScreen')
+                    };
+                }
+                
+                // 初始化应用
+                init() {
+                    // 初始化画布
+                    this.initCanvases();
+                    
+                    // 初始化所有特效
+                    this.initAllEffects();
+                    
+                    // 设置初始特效
+                    this.setEffect('heart');
+                    
+                    // 启动动画
+                    this.animationId = requestAnimationFrame(this.animate.bind(this));
+                    
+                    // 尝试自动播放音乐
+                    this.tryAutoPlayMusic();
+                    
+                    // 隐藏加载屏幕
+                    setTimeout(() => {
+                        this.elements.loaderScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            this.elements.loaderScreen.style.display = 'none';
+                        }, 500);
+                    }, 1000);
+                }
+                
+                // 初始化画布
+                initCanvases() {
+                    const resizeCanvas = (canvas) => {
+                        // 确保高清显示
+                        const dpr = window.devicePixelRatio || 1;
+                        const rect = canvas.getBoundingClientRect();
+                        canvas.width = rect.width * dpr;
+                        canvas.height = rect.height * dpr;
+                        const ctx = canvas.getContext('2d');
+                        ctx.scale(dpr, dpr);
+                        canvas.style.width = `${rect.width}px`;
+                        canvas.style.height = `${rect.height}px`;
+                        return rect;
+                    };
+
+                    // 调整两个画布大小
+                    resizeCanvas(this.elements.heartCanvas);
+                    resizeCanvas(this.elements.particlesCanvas);
+
+                    // 窗口大小改变时重新调整
+                    window.addEventListener('resize', () => {
+                        const wasMobile = this.isMobile;
+                        this.isMobile = window.innerWidth < 768;
+                        
+                        // 只有在设备类型改变或窗口大小显著变化时才重新初始化
+                        if (wasMobile !== this.isMobile || Math.abs(window.innerWidth - window.outerWidth) > 100) {
+                            resizeCanvas(this.elements.heartCanvas);
+                            resizeCanvas(this.elements.particlesCanvas);
+                            this.initAllEffects();
+                        }
+                    });
+                }
+                
+                // 初始化所有特效
+                initAllEffects() {
+                    this.createHeartPoints();
+                    this.createParticles();
+                    this.createBubbles();
+                    this.createRaindrops();
+                }
+                
+                // 创建心形点
+                createHeartPoints() {
+                    const points = [];
+                    const canvas = this.elements.heartCanvas;
+                    const rect = canvas.getBoundingClientRect();
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const size = Math.min(rect.width, rect.height) * this.effectsData.heart.config.size;
+
+                    // 生成更精细的心形曲线
+                    for (let t = 0; t <= 2 * Math.PI; t += 0.005) {
+                        // 心形曲线参数方程
+                        const x = 16 * Math.pow(Math.sin(t), 3);
+                        const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+                        
+                        // 添加随机扰动，使爱心更生动
+                        const randomness = 1.5;
+                        const noiseX = (Math.random() - 0.5) * randomness;
+                        const noiseY = (Math.random() - 0.5) * randomness;
+                        
+                        // 缩放并定位到画布中心
+                        points.push({
+                            x: centerX + (x + noiseX) * size / 16,
+                            y: centerY - (y + noiseY) * size / 16, // 负号是为了让心形正立
+                            size: Math.random() * 2 + 1,
+                            hue: 330 + Math.sin(t * 2) * 10, // 粉色色调变化
+                            opacity: 0.8 + Math.random() * 0.2
+                        });
+                    }
+                    
+                    this.effectsData.heart.points = points;
+                }
+                
+                // 创建粒子
+                createParticles() {
+                    const particles = [];
+                    const canvas = this.elements.particlesCanvas;
+                    const rect = canvas.getBoundingClientRect();
+                    const config = this.effectsData.particles.config;
+                    
+                    for (let i = 0; i < config.count; i++) {
+                        // 随机颜色，偏向粉色系
+                        const hue = 330 + Math.random() * 30;
+                        const saturation = 70 + Math.random() * 30;
+                        const lightness = this.isLightMode ? 60 + Math.random() * 20 : 50 + Math.random() * 20;
+                        
+                        particles.push({
+                            x: Math.random() * rect.width,
+                            y: Math.random() * rect.height,
+                            radius: Math.random() * 3 + 1,
+                            color: `hsla(${hue}, ${saturation}%, ${lightness}%, ${0.7 + Math.random() * 0.3})`,
+                            speedX: (Math.random() - 0.5) * config.speed,
+                            speedY: (Math.random() - 0.5) * config.speed,
+                            rotation: Math.random() * Math.PI * 2,
+                            rotationSpeed: (Math.random() - 0.5) * 0.02
+                        });
+                    }
+                    
+                    this.effectsData.particles.items = particles;
+                }
+                
+                // 创建气泡
+                createBubbles() {
+                    const bubbles = [];
+                    const canvas = this.elements.particlesCanvas;
+                    const rect = canvas.getBoundingClientRect();
+                    const config = this.effectsData.bubbles.config;
+                    
+                    for (let i = 0; i < config.count; i++) {
+                        bubbles.push({
+                            x: Math.random() * rect.width,
+                            y: rect.height + Math.random() * rect.height, // 从底部开始
+                            radius: Math.random() * 15 + 5,
+                            color: this.isLightMode ? 
+                                `rgba(255, 105, 180, ${0.3 + Math.random() * 0.3})` : 
+                                `rgba(255, 182, 193, ${0.3 + Math.random() * 0.3})`,
+                            speedY: - (Math.random() * config.speed + 0.5),
+                            speedX: (Math.random() - 0.5) * 0.5,
+                            pulse: Math.random() * Math.PI * 2,
+                            pulseSpeed: 0.02 + Math.random() * 0.01
+                        });
+                    }
+                    
+                    this.effectsData.bubbles.items = bubbles;
+                }
+                
+                // 创建烟花
+                createFireworks() {
+                    const fireworks = [];
+                    const canvas = this.elements.particlesCanvas;
+                    const rect = canvas.getBoundingClientRect();
+                    const config = this.effectsData.fireworks.config;
+                    
+                    // 创建一个新烟花
+                    const firework = {
+                        x: Math.random() * rect.width * 0.6 + rect.width * 0.2, // 限制在中间区域
+                        y: rect.height,
+                        targetY: Math.random() * rect.height * 0.4 + rect.height * 0.1,
+                        speed: 5 + Math.random() * 3,
+                        exploded: false,
+                        particles: [],
+                        hue: 330 + Math.random() * 30 // 粉色系烟花
+                    };
+                    
+                    fireworks.push(firework);
+                    this.effectsData.fireworks.items = [...this.effectsData.fireworks.items, ...fireworks];
+                }
+                
+                // 创建雨滴
+                createRaindrops() {
+                    const raindrops = [];
+                    const canvas = this.elements.particlesCanvas;
+                    const rect = canvas.getBoundingClientRect();
+                    const config = this.effectsData.rain.config;
+                    
+                    for (let i = 0; i < config.count; i++) {
+                        raindrops.push({
+                            x: Math.random() * rect.width,
+                            y: Math.random() * rect.height,
+                            length: Math.random() * 10 + 5,
+                            speed: Math.random() * config.speed + 5,
+                            thickness: Math.random() * 1.5 + 0.5,
+                            opacity: Math.random() * 0.5 + 0.3
+                        });
+                    }
+                    
+                    this.effectsData.rain.items = raindrops;
+                }
+                
+                // 绘制心形
+                drawHeart(timestamp) {
+                    const canvas = this.elements.heartCanvas;
+                    const ctx = canvas.getContext('2d');
+                    const rect = canvas.getBoundingClientRect();
+                    const now = timestamp || 0;
+                    const heartData = this.effectsData.heart;
+
+                    // 清空画布
+                    ctx.clearRect(0, 0, rect.width, rect.height);
+                    
+                    // 绘制心形点，添加呼吸和脉动效果
+                    const scale = 1 + Math.sin(now * heartData.config.pulseSpeed) * 0.05; // 呼吸效果
+                    ctx.save();
+                    ctx.translate(rect.width / 2, rect.height / 2);
+                    ctx.scale(scale, scale);
+                    ctx.translate(-rect.width / 2, -rect.height / 2);
+                    
+                    // 绘制渐变背景光环
+                    const gradient = ctx.createRadialGradient(
+                        rect.width / 2, rect.height / 2, 0,
+                        rect.width / 2, rect.height / 2, rect.width * 0.6
+                    );
+                    gradient.addColorStop(0, 'rgba(255, 105, 180, 0.2)');
+                    gradient.addColorStop(1, 'rgba(255, 105, 180, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(rect.width / 2, rect.height / 2, rect.width * 0.6, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 绘制心形点
+                    heartData.points.forEach((point, index) => {
+                        // 让点有波动效果，形成动态感
+                        const angle = now * 0.001 + index * 0.1;
+                        const waveX = Math.sin(angle) * 2;
+                        const waveY = Math.cos(angle) * 2;
+                        
+                        // 点的呼吸效果
+                        const pointScale = 1 + Math.sin(angle + now * 0.002) * 0.3;
+                        
+                        ctx.beginPath();
+                        ctx.arc(
+                            point.x + waveX, 
+                            point.y + waveY, 
+                            point.size * pointScale, 
+                            0, Math.PI * 2
+                        );
+                        
+                        // 为每个点添加渐变，增强立体感
+                        const pointGradient = ctx.createRadialGradient(
+                            point.x + waveX - point.size * 0.3, 
+                            point.y + waveY - point.size * 0.3, 
+                            0,
+                            point.x + waveX, 
+                            point.y + waveY, 
+                            point.size * pointScale
+                        );
+                        pointGradient.addColorStop(0, `hsla(${point.hue}, 100%, 90%, ${point.opacity})`);
+                        pointGradient.addColorStop(1, `hsla(${point.hue}, 100%, 60%, ${point.opacity})`);
+                        
+                        ctx.fillStyle = pointGradient;
+                        ctx.fill();
+                        
+                        // 添加发光效果
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = `hsla(${point.hue}, 100%, 70%, 0.7)`;
+                    });
+                    ctx.restore();
+                }
+                
+                // 绘制粒子
+                drawParticles() {
+                    const canvas = this.elements.particlesCanvas;
+                    const ctx = canvas.getContext('2d');
+                    const rect = canvas.getBoundingClientRect();
+                    const particles = this.effectsData.particles.items;
+                    
+                    // 清空画布
+                    ctx.clearRect(0, 0, rect.width, rect.height);
+                    
+                    // 更新和绘制粒子
+                    particles.forEach(particle => {
+                        // 更新位置
+                        particle.x += particle.speedX;
+                        particle.y += particle.speedY;
+                        particle.rotation += particle.rotationSpeed;
+                        
+                        // 边界检测，实现循环效果
+                        if (particle.x < 0) particle.x = rect.width;
+                        if (particle.x > rect.width) particle.x = 0;
+                        if (particle.y < 0) particle.y = rect.height;
+                        if (particle.y > rect.height) particle.y = 0;
+                        
+                        // 绘制粒子
+                        ctx.save();
+                        ctx.translate(particle.x, particle.y);
+                        ctx.rotate(particle.rotation);
+                        
+                        ctx.beginPath();
+                        ctx.arc(0, 0, particle.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = particle.color;
+                        ctx.fill();
+                        
+                        // 添加粒子高光
+                        ctx.beginPath();
+                        ctx.arc(-particle.radius * 0.3, -particle.radius * 0.3, particle.radius * 0.2, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                        ctx.fill();
+                        
+                        ctx.restore();
+                    });
+                }
+                
+                // 绘制气泡
+                drawBubbles() {
+                    const canvas = this.elements.particlesCanvas;
+                    const ctx = canvas.getContext('2d');
+                    const rect = canvas.getBoundingClientRect();
+                    const bubbles = this.effectsData.bubbles.items;
+                    
+                    // 清空画布
+                    ctx.clearRect(0, 0, rect.width, rect.height);
+                    
+                    // 更新和绘制气泡
+                    bubbles.forEach((bubble) => {
+                        // 更新位置
+                        bubble.y += bubble.speedY;
+                        bubble.x += bubble.speedX;
+                        bubble.pulse += bubble.pulseSpeed;
+                        
+                        // 当气泡超出屏幕顶部，重置到底部
+                        if (bubble.y < -bubble.radius) {
+                            bubble.y = rect.height + bubble.radius;
+                            bubble.x = Math.random() * rect.width;
+                        }
+                        
+                        // 绘制气泡
+                        const pulseScale = 1 + Math.sin(bubble.pulse) * 0.1;
+                        ctx.save();
+                        ctx.translate(bubble.x, bubble.y);
+                        ctx.scale(pulseScale, pulseScale);
+                        
+                        // 气泡主体
+                        ctx.beginPath();
+                        ctx.arc(0, 0, bubble.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = bubble.color;
+                        ctx.fill();
+                        
+                        // 气泡边框
+                        ctx.beginPath();
+                        ctx.arc(0, 0, bubble.radius, 0, Math.PI * 2);
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.3})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                        
+                        // 气泡高光
+                        ctx.beginPath();
+                        ctx.arc(-bubble.radius * 0.4, -bubble.radius * 0.4, bubble.radius * 0.2, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                        ctx.fill();
+                        
+                        ctx.restore();
+                    });
+                }
+                
+                // 绘制烟花
+                drawFireworks(timestamp) {
+                    const canvas = this.elements.particlesCanvas;
+                    const ctx = canvas.getContext('2d');
+                    const rect = canvas.getBoundingClientRect();
+                    const now = timestamp || 0;
+                    const fireworks = this.effectsData.fireworks.items;
+                    
+                    // 清空画布
+                    ctx.clearRect(0, 0, rect.width, rect.height);
+                    
+                    // 定期创建新烟花
+                    if (Math.random() < 0.01) {
+                        this.createFireworks();
+                    }
+                    
+                    // 更新和绘制烟花
+                    for (let i = fireworks.length - 1; i >= 0; i--) {
+                        const firework = fireworks[i];
+                        
+                        if (!firework.exploded) {
+                            // 烟花上升阶段
+                            const dy = firework.targetY - firework.y;
+                            if (Math.abs(dy) < firework.speed) {
+                                // 到达目标点，爆炸
+                                firework.exploded = true;
+                                // 创建爆炸粒子
+                                const particleCount = 80 + Math.random() * 40;
+                                for (let j = 0; j < particleCount; j++) {
+                                    const angle = Math.random() * Math.PI * 2;
+                                    const speed = Math.random() * 4 + 1;
+                                    firework.particles.push({
+                                        x: firework.x,
+                                        y: firework.y,
+                                        speedX: Math.cos(angle) * speed,
+                                        speedY: Math.sin(angle) * speed,
+                                        radius: Math.random() * 2 + 1,
+                                        hue: firework.hue + (Math.random() - 0.5) * 40,
+                                        alpha: 1,
+                                        gravity: 0.05,
+                                        friction: 0.97
+                                    });
+                                }
+                            } else {
+                                // 继续上升
+                                firework.y += dy > 0 ? firework.speed : -firework.speed;
+                                
+                                // 绘制烟花轨迹
+                                ctx.beginPath();
+                                ctx.moveTo(firework.x, rect.height);
+                                ctx.lineTo(firework.x, firework.y);
+                                ctx.strokeStyle = `hsla(${firework.hue}, 100%, 60%, 0.3)`;
+                                ctx.lineWidth = 2;
+                                ctx.stroke();
+                                
+                                // 绘制烟花头部
+                                ctx.beginPath();
+                                ctx.arc(firework.x, firework.y, 4, 0, Math.PI * 2);
+                                ctx.fillStyle = `hsla(${firework.hue}, 100%, 70%, 1)`;
+                                ctx.fill();
+                            }
+                        } else {
+                            // 绘制爆炸效果
+                            firework.particles.forEach((particle) => {
+                                // 更新粒子
+                                particle.speedY += particle.gravity;
+                                particle.speedX *= particle.friction;
+                                particle.speedY *= particle.friction;
+                                particle.x += particle.speedX;
+                                particle.y += particle.speedY;
+                                particle.alpha *= 0.97;
+                                
+                                // 绘制粒子
+                                ctx.beginPath();
+                                ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                                ctx.fillStyle = `hsla(${particle.hue}, 100%, 70%, ${particle.alpha})`;
+                                ctx.fill();
+                                
+                                // 绘制粒子轨迹
+                                ctx.beginPath();
+                                ctx.moveTo(particle.x, particle.y);
+                                ctx.lineTo(particle.x - particle.speedX * 5, particle.y - particle.speedY * 5);
+                                ctx.strokeStyle = `hsla(${particle.hue}, 100%, 70%, ${particle.alpha * 0.5})`;
+                                ctx.lineWidth = particle.radius * 0.5;
+                                ctx.stroke();
+                            });
+                            
+                            // 移除完全消失的烟花
+                            const remainingParticles = firework.particles.filter(p => p.alpha > 0.05);
+                            if (remainingParticles.length === 0) {
+                                fireworks.splice(i, 1);
+                            } else {
+                                firework.particles = remainingParticles;
+                            }
+                        }
+                    }
+                }
+                
+                // 绘制雨滴
+                drawRain() {
+                    const canvas = this.elements.particlesCanvas;
+                    const ctx = canvas.getContext('2d');
+                    const rect = canvas.getBoundingClientRect();
+                    let raindrops = this.effectsData.rain.items;
+                    
+                    // 清空画布
+                    ctx.clearRect(0, 0, rect.width, rect.height);
+                    
+                    // 添加新雨滴
+                    if (Math.random() < 0.3) {
+                        raindrops.push({
+                            x: Math.random() * rect.width,
+                            y: -10,
+                            length: Math.random() * 10 + 5,
+                            speed: Math.random() * this.effectsData.rain.config.speed + 5,
+                            thickness: Math.random() * 1.5 + 0.5,
+                            opacity: Math.random() * 0.5 + 0.3
+                        });
+                    }
+                    
+                    // 更新和绘制雨滴
+                    raindrops = raindrops.filter(raindrop => {
+                        // 更新位置
+                        raindrop.y += raindrop.speed;
+                        
+                        // 绘制雨滴
+                        ctx.beginPath();
+                        ctx.moveTo(raindrop.x, raindrop.y);
+                        ctx.lineTo(raindrop.x, raindrop.y + raindrop.length);
+                        ctx.strokeStyle = this.isLightMode ? 
+                            `rgba(100, 100, 150, ${raindrop.opacity})` : 
+                            `rgba(200, 200, 255, ${raindrop.opacity})`;
+                        ctx.lineWidth = raindrop.thickness;
+                        ctx.stroke();
+                        
+                        // 保留在屏幕内的雨滴
+                        return raindrop.y < rect.height + 10;
+                    });
+                    
+                    this.effectsData.rain.items = raindrops;
+                }
+                
+                // 动画循环
+                animate(timestamp) {
+                    const now = timestamp || 0;
+                    this.lastTime = now;
+
+                    // 根据当前选中的特效绘制
+                    switch (this.activeEffect) {
+                        case 'heart':
+                            this.drawHeart(timestamp);
+                            break;
+                        case 'particles':
+                            this.drawParticles();
+                            break;
+                        case 'bubbles':
+                            this.drawBubbles();
+                            break;
+                        case 'fireworks':
+                            this.drawFireworks(timestamp);
+                            break;
+                        case 'rain':
+                            this.drawRain();
+                            break;
+                    }
+                    
+                    this.animationId = requestAnimationFrame(this.animate.bind(this));
+                }
+                
+                // 切换背景模式
+                toggleBackgroundMode() {
+                    this.isLightMode = !this.isLightMode;
+                    document.body.classList.toggle('light-mode', this.isLightMode);
+                    
+                    // 更新所有特效颜色以适应新背景
+                    this.initAllEffects();
+                }
+                
+                // 设置特效
+                setEffect(effectName) {
+                    this.activeEffect = effectName;
+                    
+                    // 更新按钮状态
+                    this.elements.effectButtons.forEach(btn => {
+                        if (btn.dataset.effect === effectName) {
+                            btn.classList.add('effects-selector__btn--active');
+                        } else {
+                            btn.classList.remove('effects-selector__btn--active');
+                        }
+                    });
+                    
+                    // 确保特效已初始化
+                    switch (effectName) {
+                        case 'heart':
+                            if (this.effectsData.heart.points.length === 0) this.createHeartPoints();
+                            break;
+                        case 'particles':
+                            if (this.effectsData.particles.items.length === 0) this.createParticles();
+                            break;
+                        case 'bubbles':
+                            if (this.effectsData.bubbles.items.length === 0) this.createBubbles();
+                            break;
+                        case 'rain':
+                            if (this.effectsData.rain.items.length === 0) this.createRaindrops();
+                            break;
+                    }
+                }
+                
+                // 打开文字编辑弹窗
+                openTextModal() {
+                    this.elements.titleInput.value = this.elements.mainTitle.textContent;
+                    this.elements.subtitleInput.value = this.elements.subTitle.textContent;
+                    this.elements.textModal.classList.add('modal--active');
+                }
+                
+                // 关闭文字编辑弹窗
+                closeTextModal() {
+                    this.elements.textModal.classList.remove('modal--active');
+                }
+                
+                // 保存文字编辑内容
+                saveTextChanges() {
+                    const newTitle = this.elements.titleInput.value.trim();
+                    const newSubtitle = this.elements.subtitleInput.value.trim();
+                    
+                    if (newTitle) {
+                        this.elements.mainTitle.textContent = newTitle;
+                    }
+                    
+                    if (newSubtitle) {
+                        this.elements.subTitle.textContent = newSubtitle;
+                    }
+                    
+                    this.closeTextModal();
+                }
+                
+                // 切换音乐播放状态
+                toggleMusic() {
+                    if (this.isMusicPlaying) {
+                        this.elements.backgroundMusic.pause();
+                        this.isMusicPlaying = false;
+                    } else {
+                        this.playMusic();
+                    }
+                    this.updateMusicButton();
+                }
+                
+                // 更新音乐按钮状态
+                updateMusicButton() {
+                    this.elements.musicToggle.innerHTML = this.isMusicPlaying ? 
+                        '<i class="fas fa-volume-up"></i>' : 
+                        '<i class="fas fa-volume-mute"></i>';
+                }
+                
+                // 播放音乐
+                playMusic() {
+                    this.elements.backgroundMusic.play()
+                        .then(() => {
+                            this.isMusicPlaying = true;
+                            this.elements.musicPrompt.classList.remove('music-prompt--visible');
+                            this.updateMusicButton();
+                        })
+                        .catch(error => {
+                            console.log('音乐播放需要用户交互:', error);
+                            // 显示提示让用户手动开启
+                            this.elements.musicPrompt.classList.add('music-prompt--visible');
+                        });
+                }
+                
+                // 尝试自动播放音乐
+                tryAutoPlayMusic() {
+                    // 先尝试无声播放来获取播放权限
+                    this.elements.backgroundMusic.volume = 0;
+                    this.elements.backgroundMusic.play()
+                        .then(() => {
+                            // 成功获取权限后设置正常音量
+                            this.elements.backgroundMusic.volume = 0.5;
+                            this.isMusicPlaying = true;
+                            this.elements.musicPrompt.classList.remove('music-prompt--visible');
+                            this.updateMusicButton();
+                        })
+                        .catch(() => {
+                            // 无法自动播放，显示提示
+                            this.elements.musicPrompt.classList.add('music-prompt--visible');
+                            this.elements.backgroundMusic.volume = 0.5;
+                        });
+                }
+                
+                // 分享功能
+                shareContent() {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: '爱的告白',
+                            text: `${this.elements.mainTitle.textContent} - ${this.elements.subTitle.textContent}`,
+                            url: window.location.href
+                        }).catch((error) => console.log('分享失败:', error));
+                    } else {
+                        // 复制链接到剪贴板
+                        navigator.clipboard.writeText(window.location.href)
+                            .then(() => {
+                                alert('链接已复制到剪贴板，可以分享给TA了！');
+                            })
+                            .catch(err => {
+                                console.error('无法复制链接: ', err);
+                                alert('请手动复制当前页面链接进行分享');
+                            });
+                    }
+                }
+                
+                // 绑定事件处理函数
+                bindEvents() {
+                    // 背景切换
+                    this.elements.bgToggle.addEventListener('click', () => this.toggleBackgroundMode());
+                    
+                    // 特效选择
+                    this.elements.effectButtons.forEach(btn => {
+                        btn.addEventListener('click', () => this.setEffect(btn.dataset.effect));
+                    });
+                    
+                    // 文字编辑
+                    this.elements.textEdit.addEventListener('click', () => this.openTextModal());
+                    this.elements.modalClose.addEventListener('click', () => this.closeTextModal());
+                    this.elements.saveTextBtn.addEventListener('click', () => this.saveTextChanges());
+                    
+                    // 音乐控制
+                    this.elements.musicToggle.addEventListener('click', () => this.toggleMusic());
+                    this.elements.startMusicBtn.addEventListener('click', () => this.playMusic());
+                    
+                    // 分享功能
+                    this.elements.shareBtn.addEventListener('click', () => this.shareContent());
+                    
+                    // 点击页面任意位置尝试播放音乐（处理浏览器限制）
+                    document.addEventListener('click', () => {
+                        if (!this.isMusicPlaying) {
+                            this.playMusic();
+                        }
+                    }, { once: true });
+                    
+                    // 阻止模态框内部点击事件冒泡
+                    this.elements.textModal.addEventListener('click', (e) => {
+                        if (e.target === this.elements.textModal) {
+                            this.closeTextModal();
+                        }
+                    });
+
+                    // 键盘事件支持
+                    document.addEventListener('keydown', (e) => {
+                        // ESC键关闭弹窗
+                        if (e.key === 'Escape' && this.elements.textModal.classList.contains('modal--active')) {
+                            this.closeTextModal();
+                        }
+                        // M键控制音乐
+                        if (e.key.toLowerCase() === 'm') {
+                            this.toggleMusic();
+                        }
+                        // B键切换背景
+                        if (e.key.toLowerCase() === 'b') {
+                            this.toggleBackgroundMode();
+                        }
+                    });
+                }
+                
+                // 清理资源
+                cleanup() {
+                    if (this.animationId) {
+                        cancelAnimationFrame(this.animationId);
+                    }
+                }
+            }
+            
+            // 初始化应用
+            const app = new LoveConfessionApp();
+            
+            // 页面卸载时清理资源
+            window.addEventListener('beforeunload', () => {
+                app.cleanup();
+            });
+        });
+    </script>
+</body>
+</html>
